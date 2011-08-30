@@ -378,6 +378,10 @@ create(Op=?AUTH, Args) ->
     #reddy_op{name=Op,
               args=Args,
               resp_type=status};
+create(Op=?SELECT, Args) ->
+    #reddy_op{name=Op,
+              args=Args,
+              resp_type=status};
 
 %% PubSub ops
 create(Op=?PUBLISH, Args) ->

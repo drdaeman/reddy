@@ -47,6 +47,7 @@
 -record(state, {addr,
                 port,
                 pass,
+                database,
                 avail,
                 waiting=queue:new(),
                 owner_to_child=dict:new(),
@@ -86,12 +87,13 @@ init([Options]) ->
     Ip = proplists:get_value(ip, Options),
     Port = proplists:get_value(port, Options),
     Pass = proplists:get_value(pass, Options),
+    Database = proplists:get_value(database, Options),
     Count = proplists:get_value(count, Options),
     case Ip =:= undefined orelse Port =:= undefined orelse Count =:= undefined of
         true ->
             {stop, {error, badarg}};
         false ->
-            case start_children(Ip, Port, Pass, Count, []) of
+            case start_children(Ip, Port, Pass, Database, Count, []) of
                 {ok, Children} ->
                     {ok, #state{addr=Ip, port=Port, avail=Children}};
                 Error ->
@@ -198,15 +200,20 @@ child_out(Conn, Owner, Owners, Children) ->
     Children1 = dict:store(Conn, {Owner, MRef}, Children),
     {Owners1, Children1}.
 
-start_children(_Addr, _Port, _Pass, 0, Accum) ->
+start_children(_Addr, _Port, _Pass, _Database, 0, Accum) ->
     {ok, Accum};
-start_children(Addr, Port, Pass, Count, Accum) ->
+start_children(Addr, Port, Pass, Database, Count, Accum) ->
     case reddy_conn:connect(Addr, Port) of
         {ok, Pid} ->
             case do_auth(Pid, Pass) of
                 ok ->
-                    erlang:monitor(process, Pid),
-                    start_children(Addr, Port, Pass, Count - 1, [Pid|Accum]);
+                    case do_select(Pid, Database) of
+                        ok ->
+                            erlang:monitor(process, Pid),
+                            start_children(Addr, Port, Pass, Database, Count - 1, [Pid|Accum]);
+                        SelectError ->
+                            SelectError
+                    end;
                 AuthError ->
                     AuthError
             end;
@@ -218,3 +225,8 @@ do_auth(_Pid, undefined) ->
     ok;
 do_auth(Pid, Pass) ->
     reddy_server:auth(Pid, Pass).
+
+do_select(_Pid, undefined) ->
+    ok;
+do_select(Pid, Database) ->
+    reddy_server:select(Pid, Database).

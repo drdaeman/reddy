@@ -26,11 +26,14 @@
 -include("reddy_ops.hrl").
 
 -export([info/1,
-         auth/2]).
+         auth/2,
+         select/2]).
 
 auth(Conn, Password) when is_pid(Conn) ->
     reddy_conn:sync(Conn, ?AUTH, [Password]).
 
+select(Conn, Database) when is_pid(Conn) ->
+    reddy_conn:sync(Conn, ?SELECT, [Database]).
 
 info(Conn) when is_pid(Conn) ->
     Info = binary_to_list(reddy_conn:sync(Conn, ?INFO, [])),

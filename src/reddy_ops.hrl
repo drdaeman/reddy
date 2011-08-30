@@ -107,6 +107,7 @@
 %% Server ops
 -define(INFO, "INFO").
 -define(AUTH, "AUTH").
+-define(SELECT, "SELECT").
 
 %% Pubsub ops
 -define(PUBLISH, "PUBLISH").
