@@ -108,6 +108,9 @@
 -define(INFO, "INFO").
 -define(AUTH, "AUTH").
 
+%% Pubsub ops
+-define(PUBLISH, "PUBLISH").
+
 %% Health ops
 -define(PING, "PING").
 -define(ECHO, "ECHO").

@@ -379,6 +379,12 @@ create(Op=?AUTH, Args) ->
               args=Args,
               resp_type=status};
 
+%% PubSub ops
+create(Op=?PUBLISH, Args) ->
+    #reddy_op{name=Op,
+              args=Args,
+              resp_type=integer};
+
 %% Health ops
 create(Op=?PING, _Args) ->
     #reddy_op{name=Op,
