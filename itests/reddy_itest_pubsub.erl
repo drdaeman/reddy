@@ -9,4 +9,5 @@
 publish_key_test() ->
     {ok, C} = ?CONNECT(),
     ?assertMatch(0, reddy_pubsub:publish(C, ?TEST_CHAN1, <<"test">>)),
+    ?assertMatch(ok, reddy_pubsub:publish_(C, ?TEST_CHAN2, <<"test">>, false)),
     reddy_conn:close(C).
